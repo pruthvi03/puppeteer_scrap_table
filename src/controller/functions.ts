@@ -1,5 +1,5 @@
 import * as puppeteer from "puppeteer";
-
+import * as path from 'path';
 
 // Simple Table Scrape
 export async function scrapeData(url) {
@@ -278,7 +278,7 @@ export async function scrapCowinData(url: string) {
 
             return { firstRowThs, firstRowThsColspan, secRowThs }
         })
-        console.log({ firstRowThs, firstRowThsColspan, secRowThs })
+        // console.log({ firstRowThs, firstRowThsColspan, secRowThs })
 
 
         var finalResult = await page.evaluate(({ firstRowThs, firstRowThsColspan, secRowThs }) => {
@@ -321,8 +321,8 @@ export async function scrapCowinData(url: string) {
                 tableResult.push(tempRow)
 
             }
-            tableResult = tableResult.filter(x=>Object.keys(x).length == 5)
-            return JSON.stringify(tableResult,null,2)
+            tableResult = tableResult.filter(x => Object.keys(x).length == 5)
+            return JSON.stringify(tableResult, null, 2)
 
         }, { firstRowThs, firstRowThsColspan, secRowThs });
         browser.close();
@@ -332,3 +332,35 @@ export async function scrapCowinData(url: string) {
         console.log(error.message);
     }
 }
+
+export async function downloadFile(url: string) {
+    try {
+        console.log(url)
+        let browser = await puppeteer.launch({
+            headless: true, args: [
+                '--start-maximized' // you can also use '--start-fullscreen'
+            ]
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768 });
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 0
+        });
+
+        
+        const client = await page.target().createCDPSession();
+        await client.send('Page.setDownloadBehavior', {
+            behavior: 'allow',
+            downloadPath: path.join(__dirname, '../downloads'),
+        });
+
+        await page.click('#ctl00_body_aDownloadExcel');
+        await page.waitForTimeout(1000); // have to wait briefly to prevent the browser from closing before the download
+        browser.close();
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
