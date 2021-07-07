@@ -9,7 +9,7 @@ export async function scrapeData(url) {
         const page = await browser.newPage();
         await page.goto(url);
         const result = await page.evaluate(() => {
-            
+
             const grabRowData = (row, className) => {
                 return row.querySelector(`td.${className}`).innerText.trim()
             }
@@ -29,7 +29,7 @@ export async function scrapeData(url) {
                 })
             }
 
-            return data;
+            return JSON.stringify(data, null, 2);
 
         });
         browser.close();
@@ -107,16 +107,16 @@ export async function scrapeCricketTable(url) {
 
         // browser.close();
         await page.click('button[value="en"]');
-        await page.click("i.language-icon");
-        await page.click("div.language-body > div:nth-child(2) > div > div");
 
         // Use Promise.all to wait for actions (navigation and click)
-        await Promise.all([
-            await page.waitForSelector('button#wzrk-cancel'),
-            await page.click('button#wzrk-cancel'),
-            await page.click('.best-player-name > a'),
-            page.waitForNavigation()
-        ])
+
+        // waiting for selector button#wzrk-cancel
+        console.log("waiting for selector button#wzrk-cancel")
+        await page.waitForSelector('button#wzrk-cancel');
+        await page.click('button#wzrk-cancel');
+        await page.click('.best-player-name > a');
+        await page.waitForNavigation();
+
 
 
         const heading: string[] = await page.$$eval('.text-uppercase.player-card-heading', anchors => { return anchors.map(anchor => anchor.textContent) })
@@ -131,7 +131,14 @@ export async function scrapeCricketTable(url) {
         oneScoreTable = oneScoreTable.filter(obj => Object.keys(obj).length == 8)
         secScoreTable = secScoreTable.filter(obj => Object.keys(obj).length == 8)
 
-        return { 'teamOneDetails': teamsDetails[0], 'teamSecDetails': teamsDetails[1], 'winner': winner, oneScoreTable, secScoreTable, POM_Details };
+        return JSON.stringify({
+            'teamOneDetails': teamsDetails[0],
+            'teamSecDetails': teamsDetails[1],
+            'winner': winner,
+            oneScoreTable,
+            secScoreTable,
+            POM_Details
+        }, null, 2);
     } catch (error) {
         console.log(error.message);
     }
@@ -170,8 +177,6 @@ export async function scrapHindiData(url: string) {
 
             });
         });
-
-        console.log(teamsDetails);
 
         var oneScoreTable = await page.$$eval('div:nth-child(1) > div.Collapsible > div > div > div > table.table.batsman > tbody > tr', rows => {
             return Array.from(rows, row => {
@@ -217,7 +222,13 @@ export async function scrapHindiData(url: string) {
         oneScoreTable = oneScoreTable.filter(obj => Object.keys(obj).length == 8)
         secScoreTable = secScoreTable.filter(obj => Object.keys(obj).length == 8)
 
-        return { 'teamOneDetails': teamsDetails[0], 'teamSecDetails': teamsDetails[1], 'winner': winner, oneScoreTable, secScoreTable };
+        return JSON.stringify({
+            'teamOneDetails': teamsDetails[0],
+            'teamSecDetails': teamsDetails[1],
+            'winner': winner,
+            oneScoreTable,
+            secScoreTable
+        }, null, 2);
     } catch (error) {
         console.log(error.message);
     }

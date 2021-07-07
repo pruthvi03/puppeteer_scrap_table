@@ -4,19 +4,19 @@ import * as cron from "node-cron";
 
 
 
-// cron won’t start automatically
-var task = cron.schedule('33 17 6 7 *', () => {
-    scrapeCricketTable("https://www.espncricinfo.com/series/south-africa-tour-of-west-indies-2021-1263140/west-indies-vs-south-africa-3rd-t20i-1263153/full-scorecard")
-        .then(data => console.log(data))
-        .catch((err) => { console.log(err.massage) })
-},
-    {
-        scheduled: false,
-        timezone: "Asia/Kolkata"
-    });
+// // cron won’t start automatically
+// var task = cron.schedule('33 17 6 7 *', () => {
+//     scrapeCricketTable("https://www.espncricinfo.com/series/south-africa-tour-of-west-indies-2021-1263140/west-indies-vs-south-africa-3rd-t20i-1263153/full-scorecard")
+//         .then(data => console.log(data))
+//         .catch((err) => { console.log(err.massage) })
+// },
+//     {
+//         scheduled: false,
+//         timezone: "Asia/Kolkata"
+//     });
 
-// start method is called to start the above defined cron job
-task.start();
+// // start method is called to start the above defined cron job
+// task.start();
 
 // // stop method is called to stop already started cron job
 // task.stop();
@@ -34,10 +34,10 @@ task.start();
 // .then(data => console.log(data))
 //     .catch((err) => { console.log(err.massage) })
 
-// // scare data in english lang
-// scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
-//     .then(data => console.log(data))
-//     .catch((err) => { console.log(err.massage) })
+// scare data in english lang
+scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
+    .then(data => console.log(data))
+    .catch((err) => { console.log(err.massage) })
 
 // // scare data in hindi lang
 // scrapHindiData("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
