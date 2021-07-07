@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
+import { scrapCowinData, scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
 import * as cron from "node-cron";
 
 
@@ -34,10 +34,10 @@ import * as cron from "node-cron";
 // .then(data => console.log(data))
 //     .catch((err) => { console.log(err.massage) })
 
-// scrape data in english lang
-scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
-    .then(data => console.log(data))
-    .catch((err) => { console.log(err.massage) })
+// // scrape data in english lang
+// scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
+//     .then(data => console.log(data))
+//     .catch((err) => { console.log(err.massage) })
 
 // // scrape data in hindi lang
 // scrapHindiData("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
@@ -45,3 +45,9 @@ scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-
 //     .catch((err)=>{console.log(err.massage)})
 
 
+// .......................................
+// scrape COVID-19 Statewise Status
+// .......................................
+scrapCowinData("https://www.mohfw.gov.in/")
+.then(()=>console.log("scraped"))
+.catch((err)=>console.log(err.message));

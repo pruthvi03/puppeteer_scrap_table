@@ -235,3 +235,100 @@ export async function scrapHindiData(url: string) {
 
 
 }
+
+// .......................................
+// scrape COVID-19 Statewise Status
+// .......................................
+export async function scrapCowinData(url: string) {
+    console.log(url)
+    try {
+        let browser = await puppeteer.launch({
+            headless: true, args: [
+                '--start-maximized' // you can also use '--start-fullscreen'
+            ]
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768 });
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 0
+        });
+        await page.click('.trigger-state');
+
+        var { firstRowThs, firstRowThsColspan, secRowThs } = await page.$$eval('.statetable > thead > tr ', trs => {
+            var secRowThs = [];
+            var firstRowThs = [];
+            var firstRowThsColspan = []
+
+            var firstRow = trs[1].querySelectorAll('th')
+
+            for (let i = 0; i < firstRow.length; i++) {
+                firstRowThs.push(firstRow[i].textContent.replace(/[&\/\\#, +()$~%.'":*?<>{}\s]/g, '_'));
+                if (firstRow[i].hasAttribute('colspan')) {
+                    firstRowThsColspan.push(+firstRow[i].getAttribute('colspan'))
+                }
+                else {
+                    firstRowThsColspan.push(1);
+                }
+            }
+            var secRow = trs[2].querySelectorAll('th')
+            for (let i = 0; i < secRow.length; i++) {
+                secRowThs.push(secRow[i].textContent);
+            }
+
+            return { firstRowThs, firstRowThsColspan, secRowThs }
+        })
+        console.log({ firstRowThs, firstRowThsColspan, secRowThs })
+
+
+        var finalResult = await page.evaluate(({ firstRowThs, firstRowThsColspan, secRowThs }) => {
+
+            var rows = document.querySelectorAll('#state-data > div > div > div > div > table > tbody > tr');
+            var tableResult = []
+            for (let row of rows as any) {
+                const columns = row.querySelectorAll('td');
+                var rowData = []
+
+                for (let col of columns as any) {
+                    rowData.push(col.innerText.trim())
+                }
+
+
+                var i = 0;
+                var j = 0;
+                var k = 0;
+                var tempRow = {}
+                while (k < rowData.length) {
+                    var colSpanCount: number = firstRowThsColspan[i];
+
+                    if (colSpanCount < 2) {
+                        tempRow[firstRowThs[i]] = rowData[k]
+                        i++;
+                        k++;
+                    } else {
+                        var subTemp = {};
+                        while (colSpanCount > 0) {
+                            colSpanCount--;
+                            subTemp[secRowThs[j]] = rowData[k]
+                            j++;
+                            k++;
+                        }
+                        tempRow[firstRowThs[i]] = subTemp
+                        i++;
+                    }
+
+                }
+                tableResult.push(tempRow)
+
+            }
+            tableResult = tableResult.filter(x=>Object.keys(x).length == 5)
+            return JSON.stringify(tableResult,null,2)
+
+        }, { firstRowThs, firstRowThsColspan, secRowThs });
+        browser.close();
+        console.log(finalResult);
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
