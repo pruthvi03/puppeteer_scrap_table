@@ -34,12 +34,12 @@ import * as cron from "node-cron";
 // .then(data => console.log(data))
 //     .catch((err) => { console.log(err.massage) })
 
-// scare data in english lang
+// scrape data in english lang
 scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
     .then(data => console.log(data))
     .catch((err) => { console.log(err.massage) })
 
-// // scare data in hindi lang
+// // scrape data in hindi lang
 // scrapHindiData("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
 //     .then(data=>console.log(data))
 //     .catch((err)=>{console.log(err.massage)})
