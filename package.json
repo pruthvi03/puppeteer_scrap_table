@@ -1,0 +1,24 @@
+{
+   "name": "24_scraping",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/node": "^8.0.29",
+      "ts-node": "3.3.0",
+      "typescript": "3.3.3333"
+   },
+   "dependencies": {
+      "cron": "^1.8.2",
+      "dotenv": "^8.6.0",
+      "mysql2": "^2.2.5",
+      "node-cron": "^3.0.0",
+      "puppeteer": "^10.1.0",
+      "reflect-metadata": "^0.1.10",
+      "ts-node-dev": "^1.1.8",
+      "typeorm": "0.2.34"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts",
+      "dev": "ts-node-dev src/index.ts"
+   }
+}
