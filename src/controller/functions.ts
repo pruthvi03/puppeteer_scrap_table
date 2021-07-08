@@ -441,4 +441,22 @@ export async function scrapCowinDataSecond(url: string) {
     } catch (error) {
         console.log(error.message);
     }
+
+//.......................................... 
+// Response
+//..........................................
+// [
+//     {
+//       "S__No_": "1",
+//       "Name_of_State___UT": "Andaman and Nicobar Islands",
+//       "Active_Cases__Total": "14",
+//       "Active_Cases__Change_since_yesterday": "2",
+//       "Cured_Discharged_Migrated__Cumulative": "7349",
+//       "Cured_Discharged_Migrated__Change_since_yesterday": "6",
+//       "Deaths___Cumulative": "128",
+//       "Deaths___Change_since_yesterday": ""
+//     },...
+
+// ]
+
 }
