@@ -348,7 +348,7 @@ export async function downloadFile(url: string) {
             timeout: 0
         });
 
-        
+
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
@@ -364,3 +364,81 @@ export async function downloadFile(url: string) {
     }
 }
 
+// .......................................
+// scrape COVID-19 Statewise Status (Upgraded version)
+// .......................................
+export async function scrapCowinDataSecond(url: string) {
+    console.log(url)
+    try {
+        // puppeteer settings
+        let browser = await puppeteer.launch({
+            headless: true, args: [
+                '--start-maximized' // you can also use '--start-fullscreen'
+            ]
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768 });
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 0
+        });
+
+        await page.click('.trigger-state');
+
+        // getting Data from site
+        var result: {}[] = await page.evaluate(() => {
+
+            // getting keys for JSON object
+            var trs = document.querySelectorAll('.statetable > thead > tr');
+            var header: string[][] = [];
+            var colspan: number[][] = [];
+            for (let tr of trs as any) {
+                const columns = tr.querySelectorAll('th');
+                var tempHead: string[] = [];
+                var tempColspan: number[] = [];
+                for (let col of columns as any) {
+                    tempHead.push(col.innerText.replace(/[&\/\\#, +()$~%.'":*?<>{}\s]/g, '_'))
+                    tempColspan.push(+col.getAttribute('colspan') || 1)
+                }
+                header.push(tempHead);
+                colspan.push(tempColspan);
+            }
+            header = header.filter(x => x.length != 0)
+            colspan = colspan.filter(x => x.length != 0)
+
+            var j = 0;
+            var keys: string[] = [];
+            for (let i = 0; i < header[0].length; i++) {
+                if (colspan[0][i] == 1) {
+                    keys.push(header[0][i])
+                } else {
+                    while (colspan[0][i] != 0) {
+                        colspan[0][i]--;
+                        keys.push(`${header[0][i]}_${header[1][j]}`)
+                        j++;
+                    }
+                }
+            }
+
+
+            // getting actual data from the table
+            const datatrs = document.querySelectorAll('.statetable > tbody > tr')
+            return Array.from(datatrs, row => {
+                const columns = row.querySelectorAll('td');
+                const rowData: string[] = Array.from(columns, column => column.innerText.trim());
+                var obj = {}
+                rowData.forEach((data, index) => {
+                    obj[keys[index]] = data
+                    console.log(keys[index])
+                })
+                return obj
+            }).filter(x=>Object.keys(x).length==keys.length);
+
+        })
+        
+        console.log(JSON.stringify(result,null,2))
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}

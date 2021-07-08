@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { downloadFile, scrapCowinData, scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
+import { downloadFile, scrapCowinData, scrapCowinDataSecond, scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
 import * as cron from "node-cron";
 
 
@@ -55,6 +55,14 @@ import * as cron from "node-cron";
 // .......................................
 // Download fie/img
 // .......................................
-downloadFile("https://gujcovid19.gujarat.gov.in/")
-.then(()=>console.log("downloaded"))
+// downloadFile("https://gujcovid19.gujarat.gov.in/")
+// .then(()=>console.log("downloaded"))
+// .catch((err)=>console.log(err.message));
+
+
+// .......................................
+// scrape COVID-19 Statewise Status
+// .......................................
+scrapCowinDataSecond("https://www.mohfw.gov.in/")
+.then(()=>console.log("scraped"))
 .catch((err)=>console.log(err.message));
