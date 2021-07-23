@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { downloadFile, scrapCowinData, scrapCowinDataSecond, scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
+import { downloadFile, extraFun, extraFun2, scrapCowinData, scrapCowinDataSecond, scrapeCricketTable, scrapeData, scrapHindiData } from './controller/functions';
 import * as cron from "node-cron";
 
 
@@ -34,12 +34,12 @@ import * as cron from "node-cron";
 // .then(data => console.log(data))
 //     .catch((err) => { console.log(err.massage) })
 
-// // scrape data in english lang
+// // scrape cricket data in english lang
 // scrapeCricketTable("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
 //     .then(data => console.log(data))
 //     .catch((err) => { console.log(err.massage) })
 
-// // scrape data in hindi lang
+// // scrape cricket data in hindi lang
 // scrapHindiData("https://www.espncricinfo.com/series/ipl-2021-1249214/mumbai-indians-vs-rajasthan-royals-24th-match-1254081/full-scorecard")
 //     .then(data=>console.log(data))
 //     .catch((err)=>{console.log(err.massage)})
@@ -63,6 +63,20 @@ import * as cron from "node-cron";
 // .......................................
 // scrape COVID-19 Statewise Status
 // .......................................
-scrapCowinDataSecond("https://www.mohfw.gov.in/")
+// scrapCowinDataSecond("https://www.mohfw.gov.in/")
+// .then(()=>console.log("scraped"))
+// .catch((err)=>console.log(err.message));
+
+// .......................................
+// Extras
+// .......................................
+// extraFun("https://www.mohfw.gov.in/")
+// .then(()=>console.log("scraped"))
+// .catch((err)=>console.log(err.message));
+
+// .......................................
+// Extras using cheerio
+// .......................................
+extraFun2("https://www.mohfw.gov.in/")
 .then(()=>console.log("scraped"))
 .catch((err)=>console.log(err.message));

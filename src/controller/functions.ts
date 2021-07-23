@@ -1,5 +1,6 @@
 import * as puppeteer from "puppeteer";
 import * as path from 'path';
+import * as cheerio from 'cheerio';
 
 // Simple Table Scrape
 export async function scrapeData(url) {
@@ -432,31 +433,252 @@ export async function scrapCowinDataSecond(url: string) {
                     console.log(keys[index])
                 })
                 return obj
-            }).filter(x=>Object.keys(x).length==keys.length);
+            }).filter(x => Object.keys(x).length == keys.length);
 
         })
-        
-        console.log(JSON.stringify(result,null,2))
-        
+
+        console.log(JSON.stringify(result, null, 2))
+
     } catch (error) {
         console.log(error.message);
     }
 
-//.......................................... 
-// Response
-//..........................................
-// [
-//     {
-//       "S__No_": "1",
-//       "Name_of_State___UT": "Andaman and Nicobar Islands",
-//       "Active_Cases__Total": "14",
-//       "Active_Cases__Change_since_yesterday": "2",
-//       "Cured_Discharged_Migrated__Cumulative": "7349",
-//       "Cured_Discharged_Migrated__Change_since_yesterday": "6",
-//       "Deaths___Cumulative": "128",
-//       "Deaths___Change_since_yesterday": ""
-//     },...
+    //.......................................... 
+    // Response
+    //..........................................
+    // [
+    // {
+    //   "S__No_": "1",
+    //   "Name_of_State___UT": "Andaman and Nicobar Islands",
+    //   "Active_Cases__Total": "14",
+    //   "Active_Cases__Change_since_yesterday": "2",
+    //   "Cured_Discharged_Migrated__Cumulative": "7349",
+    //   "Cured_Discharged_Migrated__Change_since_yesterday": "6",
+    //   "Deaths___Cumulative": "128",
+    //   "Deaths___Change_since_yesterday": ""
+    // },...
 
-// ]
+    // ]
+
+}
+
+
+export async function extraFun(url: string) {
+    console.log(url)
+    try {
+        // puppeteer settings
+        let browser = await puppeteer.launch({
+            headless: false,
+            args: [
+                '--start-maximized' // you can also use '--start-fullscreen'
+            ]
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768 });
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 0
+        });
+
+        await page.click('.trigger-state');
+
+        // let element = await page.$('.statetable'); // table class = statetable
+
+        var result = await page.evaluate(() => {
+
+            // getting keys for JSON object
+            var trs = document.querySelectorAll('tr');
+            var header: string[][] = [];
+            var colspan: number[][] = [];
+            var index: number = 0;
+
+            while (index < trs.length) {
+                var tr = trs[index];
+                index++;
+
+                var columns = tr.querySelectorAll('th');
+                if (columns.length == 0) {
+                    columns = tr.querySelectorAll('td');
+                }
+                var tempHead: string[] = [];
+                var tempColspan: number[] = [];
+                for (let col of columns as any) {
+                    tempHead.push(col.innerText.replace(/[&\/\\#, +()$~%.'":*?<>{}\s]/g, '_'))
+                    tempColspan.push(Number(col.getAttribute('colspan')) ? Number(col.getAttribute('colspan')) : 1)
+                }
+                header.push(tempHead);
+                colspan.push(tempColspan);
+                if (tempColspan.length != 0 && tempColspan.every(x => x == 1)) {
+                    break;
+                }
+            }
+
+            header = header.filter(x => x.length != 0)
+            colspan = colspan.filter(x => x.length != 0)
+
+            console.log({ header, colspan })
+            for (let i = colspan.length - 1; i >= 0; i--) {
+                // first for loop
+                let tempArray = [];
+                let k = 0;
+
+                for (let j = 0; j < colspan[i].length; j++) {
+                    // second for loop
+                    if (colspan[i][j] == 1) {
+                        tempArray.push(header[i][j]);
+                    } else {
+                        while (colspan[i][j] != 0) {
+                            colspan[i][j] -= 1;
+                            tempArray.push(`${header[i][j]}_${header[i + 1][k]}`);
+                            k++;
+                        }
+                    }
+
+                } //end of second for loop
+                header[i] = tempArray;
+            } //end of first for loop
+
+            var headerKeys: string[] = header[0];
+            console.log(headerKeys);
+
+            // ....................................
+            // getting actual data from the table
+            // ...................................
+            var actualData = [];
+            // console.log(trs.length)
+            while (index < trs.length) {
+                var tr = trs[index];
+                index++;
+                const tds = tr.querySelectorAll('td');
+                const rowData: string[] = Array.from(tds, td => td.innerText.trim());
+                var obj = {}
+                rowData.forEach((data, i) => {
+                    obj[headerKeys[i]] = data;
+                })
+                actualData.push(obj);
+            }
+
+            actualData = actualData.filter(x => Object.keys(x).length == headerKeys.length);
+            return actualData;
+
+        })
+
+        console.log(JSON.stringify(result, null, 2))
+        browser.close;
+    }
+    catch (err) {
+        console.log(err.message);
+    }
+
+}
+// 
+// Using cheerio for scraping
+// 
+export async function extraFun2(url: string) {
+    console.log(url)
+    try {
+        // puppeteer settings
+        let browser = await puppeteer.launch({
+            headless: false,
+            args: [
+                '--start-maximized' // you can also use '--start-fullscreen'
+            ]
+        });
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1366, height: 768 });
+        await page.goto(url, {
+            waitUntil: 'networkidle0',
+            timeout: 0
+        });
+
+        await page.click('.trigger-state');
+
+        let element = await page.$('.statetable');
+        var HTML = await page.evaluate((el) => el.innerHTML, element);
+        HTML = '<table>' + HTML + '</table>';
+        const $ = cheerio.load(HTML);
+
+        var trs = $('tr');
+        var header: string[][] = [];
+        var colspan: number[][] = [];
+        var index: number = 0;
+ 
+        while (index < trs.length) {
+            var tr = trs[index];
+            index++;
+            if (!tr) continue;
+
+            var columnNames = $(tr).find('th');
+            if (columnNames.length == 0) {
+                columnNames = $(tr).find('td');;
+            }
+            console.log(columnNames.text() + columnNames.length);
+            var tempHead: string[] = [];
+            var tempColspan: number[] = [];
+            for (let i = 0; i < columnNames.length; i++) {
+                var col = $(columnNames[i]);
+                tempHead.push(col.text().replace(/[&\/\\#, +()$~%.'":*?<>{}\s]/g, '_'))
+                tempColspan.push(Number(col.attr('colspan')) ? Number(col.attr('colspan')) : 1)
+            }
+
+            header.push(tempHead);
+            colspan.push(tempColspan);
+            if (tempColspan.length != 0 && tempColspan.every(x => x == 1)) {
+                break;
+            }
+        }
+
+        header = header.filter(x => x.length != 0)
+        colspan = colspan.filter(x => x.length != 0)
+
+
+        for (let i = colspan.length - 1; i >= 0; i--) {
+            // first for loop
+            let tempArray = [];
+            let k = 0;
+
+            for (let j = 0; j < colspan[i].length; j++) {
+                // second for loop
+                if (colspan[i][j] == 1) {
+                    tempArray.push(header[i][j]);
+                } else {
+                    while (colspan[i][j] != 0) {
+                        colspan[i][j] -= 1;
+                        tempArray.push(`${header[i][j]}_${header[i + 1][k]}`);
+                        k++;
+                    }
+                }
+
+            } //end of second for loop
+            header[i] = tempArray;
+        } //end of first for loop
+
+        var headerKeys: string[] = header[0];
+
+        // ....................................
+        // getting actual data from the table
+        // ...................................
+        var actualData = [];
+        while (index < trs.length) {
+            var tr = trs[index];
+            index++;
+            // const tds = $(tr).find('td');
+            const tds = $(tr).children();
+            const rowData: string[] = Array.from(tds, td => $(td).text().trim());
+            var obj = {}
+            rowData.forEach((data, i) => {
+                obj[headerKeys[i]] = data;
+            })
+            actualData.push(obj);
+        }
+
+        actualData = actualData.filter(x => Object.keys(x).length == headerKeys.length);
+
+        console.log(JSON.stringify(actualData, null, 2))
+        browser.close;
+    }
+    catch (err) {
+        console.log(err.message);
+    }
 
 }

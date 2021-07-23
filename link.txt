@@ -1,0 +1,13 @@
+https://www.mohfw.gov.in/
+.trigger-state
+tr
+
+https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType/show?name=&defaultValue=true&viewType=TABLE&areaType=BZN&atch=false&datepicker-day-offset-select-dv-date-from_input=D&dateTime.dateTime=09.08.2017%2000:00%7CUTC%7CDAYTIMERANGE&dateTime.endDateTime=09.08.2017%2000:00%7CUTC%7CDAYTIMERANGE&area.values=CTY%7C10YES-REE------0!BZN%7C10YES-REE------0&productionType.values=B01&productionType.values=B02&productionType.values=B03&productionType.values=B04&productionType.values=B05&productionType.values=B06&productionType.values=B07&productionType.values=B08&productionType.values=B09&productionType.values=B10&productionType.values=B11&productionType.values=B12&productionType.values=B13&productionType.values=B14&productionType.values=B20&productionType.values=B15&productionType.values=B16&productionType.values=B17&productionType.values=B18&productionType.values=B19&dateTime.timezone=UTC&dateTime.timezone_input=UTC
+#close-button
+#DataTables_Table_0 > thead > tr
+
+https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Advanced
+#content > article > div:nth-child(14) > table > tbody > tr
+
+https://www.lidorsystems.com/help/integralui/web-components/grid/multi-level-headers/
+#content-scroll > div:nth-child(2) > div:nth-child(2) > div.content > div > div.app-sample > iui-app > div > iui-grid > div > div.iui-grid-block.iui-grid-block-top > table > tr
